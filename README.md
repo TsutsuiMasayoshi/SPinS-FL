@@ -35,7 +35,7 @@ These scores indicate the priority of the respective weight to join a focused su
 By training these scores instead of the weights, a **supermask** that represents the location of the vital weights can be acquired.
 
 # SPinS-FL
-<img src="https://user-images.githubusercontent.com/62000880/219866088-b8da3110-15b8-4d64-afdd-ae8deae32263.png" width=250>
+<img src="https://user-images.githubusercontent.com/62000880/219866088-b8da3110-15b8-4d64-afdd-ae8deae32263.png" width=400>
 
 We first implement the Edge-Popup algorithm in FL naively. In the Edge-Popup algorithm, scores are trained instead of weights. Therefore, the score information should be communicated instead of weights.
 
