@@ -7,7 +7,8 @@ Accpeted as a conference paper in [IEEE Consumer Communications & Networking Con
 
 
 # Federated Learning
-![iconicFL.pdf](https://github.com/MasayoshiTsutsui/SPinS-FL/files/10773702/iconicFL.pdf)
+<img src="https://user-images.githubusercontent.com/62000880/219865620-4dd3c489-b820-429c-a621-0f4883c81e47.png" width=400>
+
 
 Federated learning (FL) is a distributed machine learning method in which edge devices collaboratively train a common model without disclosing their private training data. 
 
@@ -15,31 +16,40 @@ Unlike data centers, edge devices often stand in low-bandwidth traffic environme
 
 To solve this problem, we utilized the Edge-Popup Algorithm: a deep learning algorithm based on the Lottery Ticket Hypothesis.
 
-# The Edge-Popup Algorithm
-![EdgePopup.pdf](https://github.com/MasayoshiTsutsui/SPinS-FL/files/10773728/EdgePopup.pdf)
-
-## the Lottery Ticket Hypothesis
+# the Lottery Ticket Hypothesis
 Pruning weights from neural networks have shown some success in the past; the required weight is only a part of the whole in a large neural network.
 
 Based on this idea, Frankle and Carbin proposed the lottery ticket hypothesis, 
 wherein a randomly weighted neural network contains a subnetwork whose test accuracy is comparable to that of the entire network
 by updating the weights the same number of times.
 
-## Searching a Well-Performing Subnetwork
+# The Edge-Popup Algorithm
+<img src="https://user-images.githubusercontent.com/62000880/219865817-3d41e2d1-e5c9-4dae-bb87-9e04d7ea7fa1.png" width=250>
+
 Ramanujan et al.　further strengthened the argument in the lottery ticket hypothesis and proposed that a deep neural network has a hidden subnetwork that performs as well as the original network already trained.
-
-If this is true, then this hidden subnetwork has a significant advantage.
-
-We can construct a network using only 2 things:
-
-- a random seed for weight initialization and a supermask
-- a bitmask indicating which weights belong to the subnetwork
 
 Based on this strengthened hypothesis, Ramanujan et al. proposed the Edge-Popup algorithm, a novel method for **finding a well-performing subnetwork** by assigning **scores** to each weight in the network.
 
 These scores indicate the priority of the respective weight to join a focused subnetwork.
 
 By training these scores instead of the weights, a **supermask** that represents the location of the vital weights can be acquired.
+
+# SPinS-FL
+<img src="https://user-images.githubusercontent.com/62000880/219866088-b8da3110-15b8-4d64-afdd-ae8deae32263.png" width=250>
+
+We first implement the Edge-Popup algorithm in FL naively. In the Edge-Popup algorithm, scores are trained instead of weights. Therefore, the score information should be communicated instead of weights.
+
+In addition to this, we carefully selected the scores to communicate during the training and succeeded in reducing communication and calculation for the training.
+
+The process is represented by the following images.
+
+For the detail of this algorithm, please read the paper upcoming to be released.
+
+<img src="https://user-images.githubusercontent.com/62000880/219866202-b0ef5260-c7ac-4487-b2d1-7d150459bd1a.png" width=250>
+<img src="https://user-images.githubusercontent.com/62000880/219866191-effca74a-b27e-4b1d-a343-1dba2f3c67f8.png" width=300>
+
+
+
 
 # Features
 
