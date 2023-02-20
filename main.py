@@ -7,7 +7,7 @@ import torch.nn as nn
 import flwr as fl
 from models import *
 from data import data_loaders
-from spinsclient import SpinsClient
+from clients import SpinsClient
 
 
 def main():
