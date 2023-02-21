@@ -26,11 +26,9 @@ class AggregateCustomMetricStrategy(fl.server.strategy.FedAvg):
 
 # Create strategy and run server
 strategy = AggregateCustomMetricStrategy(
-	fraction_fit=1.0,
-	fraction_eval=1.0,
 	min_fit_clients=GROUP_NUM,
-	min_eval_clients=GROUP_NUM,
+	min_evaluate_clients=GROUP_NUM,
 	min_available_clients=GROUP_NUM,
 )
 
-fl.server.start_server(config={"num_rounds": 250}, strategy=strategy)
+fl.server.start_server(config=fl.server.ServerConfig(num_rounds=3), strategy=strategy)
