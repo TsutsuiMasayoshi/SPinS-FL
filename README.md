@@ -50,10 +50,7 @@ For the detail of this algorithm, please read the paper upcoming to be released.
 
 # Requirement
 ```
-numpy
-torch
-torchvision
-flwr
+python==3.7.4
 ```
 # Installation
 
