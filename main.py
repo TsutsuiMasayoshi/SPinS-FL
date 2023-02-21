@@ -9,27 +9,35 @@ from models import *
 from data import data_loaders
 from clients import SpinsClient
 
+SPINS = 0
+SCORE_BASED = 1
+WEIGHT_BASED = 2
 
-def main():
-    use_cuda = not args.no_cuda and torch.cuda.is_available()
 
+def main(args):
     torch.cuda.set_device(args.client_id % 4)
-
     torch.manual_seed(args.seed)
     random.seed(args.seed)
     np.random.seed(args.seed)
+
+    use_cuda = not args.no_cuda and torch.cuda.is_available()
 
     device = torch.device("cuda" if use_cuda else "cpu")
     model = SpinsConv6().to(device)
     optimizer = optim.Adam([p for p in model.parameters() if p.requires_grad])
     criterion = nn.CrossEntropyLoss()
-
     train_loaders, test_loader = data_loaders(args.client_id, args.data, args.is_iid, use_cuda, args.batch_size, args.test_batch_size)
 
+    client_args = [model, optimizer, criterion, device, train_loaders, test_loader, args]
+
+    
+    if args.algorithm == SPINS:
+        client = SpinsClient(*client_args)
+    else:
+        raise NotImplementedError("Choose algorithm from [0: SPinS, 1: Score based, 2: Weight based]")
+
     # Start client
-    fl.client.start_numpy_client("[::]:8080", client=SpinsClient(model, optimizer, criterion, device, train_loaders, test_loader, args))
-
-
+    fl.client.start_numpy_client("[::]:8080", client=SpinsClient(client))
 
 
 if __name__ == '__main__':
@@ -37,6 +45,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SPinS-FL simulator')
     parser.add_argument('client_id', type=int, choices=list(range(10)),
                             help='ID of the client. Choose from [0,1...,9]')
+    parser.add_argument('--algorithm', type=int, default=0,
+                            help='0: SPinS-FL, 1: score based(naive Edge-Popup FL), 2: weight base')
     parser.add_argument('--seed', type=int, default=0,
                             help='base seed')
     parser.add_argument('--localPinRate', type=float, default=0.5,
@@ -59,7 +69,6 @@ if __name__ == '__main__':
                             help='For Saving the current Model')
     parser.add_argument('--data', type=str, default='../data', help='Location to store data')
 
-    global args
     args = parser.parse_args()
 
-    main()
+    main(args)
