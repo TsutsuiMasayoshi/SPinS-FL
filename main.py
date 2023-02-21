@@ -21,9 +21,17 @@ def main(args):
     np.random.seed(args.seed)
 
     use_cuda = not args.no_cuda and torch.cuda.is_available()
-
     device = torch.device("cuda" if use_cuda else "cpu")
-    model = SpinsConv6().to(device)
+
+    if args.algorithm == SPINS:
+        model = SpinsConv6().to(device)
+    elif args.algorithm == SCORE_BASED:
+        raise NotImplementedError("score based algorithm will become available soon...")
+    elif args.algorithm == WEIGHT_BASED:
+        raise NotImplementedError("weight based algorithm will become available soon...")
+    else:
+        raise ValueError("Choose algorithm from [0: SPinS, 1: Score based, 2: Weight based]")
+
     optimizer = optim.Adam([p for p in model.parameters() if p.requires_grad])
     criterion = nn.CrossEntropyLoss()
     train_loaders, test_loader = data_loaders(args.client_id, args.data, args.is_iid, use_cuda, args.batch_size, args.test_batch_size)
@@ -33,8 +41,12 @@ def main(args):
     
     if args.algorithm == SPINS:
         client = SpinsClient(*client_args)
+    elif args.algorithm == SCORE_BASED:
+        raise NotImplementedError("score based algorithm will become available soon...")
+    elif args.algorithm == WEIGHT_BASED:
+        raise NotImplementedError("weight based algorithm will become available soon...")
     else:
-        raise NotImplementedError("Choose algorithm from [0: SPinS, 1: Score based, 2: Weight based]")
+        raise ValueError("Choose algorithm from [0: SPinS, 1: Score based, 2: Weight based]")
 
     # Start client
     fl.client.start_numpy_client("[::]:8080", client=SpinsClient(client))
