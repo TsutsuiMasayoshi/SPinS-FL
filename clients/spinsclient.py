@@ -1,10 +1,13 @@
-import flwr as fl
+import os
+import sys
+sys.path.append(os.curdir)
+from train import train, test
+from constants import CLIENTNUM_GROUP, GROUP_NUM
+
 import numpy as np
 import torch
 from collections import OrderedDict
-from constants import CLIENTNUM_GROUP, GROUP_NUM
-from train import train, test
-
+import flwr as fl
 
 class SpinsClient(fl.client.NumPyClient):
     def __init__(self, model, optimizer, criterion, device, train_loaders, test_loader, args) -> None:
