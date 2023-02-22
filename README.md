@@ -16,7 +16,7 @@ Unlike data centers, edge devices often stand in low-bandwidth traffic environme
 
 To solve this problem, we utilized the Edge-Popup Algorithm: a deep learning algorithm based on the Lottery Ticket Hypothesis.
 
-# the Lottery Ticket Hypothesis
+# The Lottery Ticket Hypothesis
 Pruning weights from neural networks have shown some success in the past; the required weight is only a part of the whole in a large neural network.
 
 Based on this idea, Frankle and Carbin proposed the lottery ticket hypothesis, 
@@ -45,31 +45,23 @@ The process is represented by the following images.
 
 For the detail of this algorithm, please read the paper upcoming to be released.
 
-<img src="https://user-images.githubusercontent.com/62000880/219866202-b0ef5260-c7ac-4487-b2d1-7d150459bd1a.png" width=250>
-<img src="https://user-images.githubusercontent.com/62000880/219866191-effca74a-b27e-4b1d-a343-1dba2f3c67f8.png" width=300>
+<img src="https://user-images.githubusercontent.com/62000880/219866202-b0ef5260-c7ac-4487-b2d1-7d150459bd1a.png" width=250><img src="https://user-images.githubusercontent.com/62000880/219866191-effca74a-b27e-4b1d-a343-1dba2f3c67f8.png" width=300>
 
-
-
-
-# Features
-
-TODO
 
 # Requirement
-
-TODO
-
+```
+python==3.7.4
+```
 # Installation
 
-TODO
+```
+pip install requirements.txt
+```
 
 # Usage
-
-TODO
-
-# Note
-
-TODO
+```
+$ ./runfl.sh
+```
 
 # Author
 
