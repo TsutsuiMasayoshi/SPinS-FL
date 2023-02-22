@@ -154,7 +154,7 @@ class SpinsClient(fl.client.NumPyClient):
 
         self.round_ctr += 1
 
-        return self.get_parameters(), len(train_loader.dataset), {}
+        return self.get_parameters(config), len(train_loader.dataset), {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
