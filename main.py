@@ -24,7 +24,7 @@ def main(args):
     device = torch.device("cuda" if use_cuda else "cpu")
 
     if args.algorithm == SPINS:
-        model = SpinsConv6().to(device)
+        model = SpinsConv6(args.localPinRate).to(device)
     elif args.algorithm == SCORE_BASED:
         raise NotImplementedError("score based algorithm will become available soon...")
     elif args.algorithm == WEIGHT_BASED:
@@ -38,7 +38,6 @@ def main(args):
 
     client_args = [model, optimizer, criterion, device, train_loaders, test_loader, args]
 
-    
     if args.algorithm == SPINS:
         client = SpinsClient(*client_args)
     elif args.algorithm == SCORE_BASED:
@@ -49,7 +48,7 @@ def main(args):
         raise ValueError("Choose algorithm from [0: SPinS, 1: Score based, 2: Weight based]")
 
     # Start client
-    fl.client.start_numpy_client("[::]:8080", client=SpinsClient(client))
+    fl.client.start_numpy_client(server_address="0.0.0.0:8080", client=client)
 
 
 if __name__ == '__main__':

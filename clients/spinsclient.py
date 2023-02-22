@@ -11,6 +11,7 @@ import flwr as fl
 
 class SpinsClient(fl.client.NumPyClient):
     def __init__(self, model, optimizer, criterion, device, train_loaders, test_loader, args) -> None:
+        torch.backends.cudnn.benchmark  = True
         super().__init__()
         self.model = model
         self.optimizer = optimizer
@@ -31,7 +32,7 @@ class SpinsClient(fl.client.NumPyClient):
                     self.score_without_bn_idx.append(idx)
                 idx += 1
 
-    def get_parameters(self):
+    def get_parameters(self, config):
         score_bn_list = []
         for name, val in self.model.state_dict().items():
             if 'scores' in name or ('bn' in name and 'running' in name):

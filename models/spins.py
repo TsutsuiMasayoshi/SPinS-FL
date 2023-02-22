@@ -32,16 +32,16 @@ class GetSpinsSubnet(autograd.Function):
         return g, None, None, None
 
 
-class SpinsConv(nn.Conv2d):
+class SpinsConvLayer(nn.Conv2d):
     def __init__(self, *args, **kwargs):
-        locked_rate = kwargs.pop('locked_rate')
+        localPinRate = kwargs.pop('localPinRate')
         super().__init__(*args, **kwargs)
 
         # initialize the scores
         self.scores = nn.Parameter(torch.Tensor(self.weight.size()))
         nn.init.kaiming_uniform_(self.scores, a=math.sqrt(5))
 
-        half_locked_num = int((locked_rate / 2) * self.weight.numel())
+        half_locked_num = int((localPinRate / 2) * self.weight.numel())
 
         self.register_buffer('top_locked_indices', torch.zeros(half_locked_num, dtype=torch.long))
         self.register_buffer('unlocked_indices', torch.zeros(self.weight.numel() - 2 * half_locked_num, dtype=torch.long))
@@ -64,16 +64,16 @@ class SpinsConv(nn.Conv2d):
         )
         return x
 
-class SpinsLinear(nn.Linear):
+class SpinsLinearLayer(nn.Linear):
     def __init__(self, *args, **kwargs):
-        locked_rate = kwargs.pop('locked_rate')
+        localPinRate = kwargs.pop('localPinRate')
         super().__init__(*args, **kwargs)
 
         # initialize the scores
         self.scores = nn.Parameter(torch.Tensor(self.weight.size()))
         nn.init.kaiming_uniform_(self.scores, a=math.sqrt(5))
 
-        half_locked_num = int((locked_rate / 2) * self.weight.numel())
+        half_locked_num = int((localPinRate / 2) * self.weight.numel())
 
         self.register_buffer('top_locked_indices', torch.zeros(half_locked_num, dtype=torch.long))
         self.register_buffer('unlocked_indices', torch.zeros(self.weight.numel() - 2 * half_locked_num, dtype=torch.long))
@@ -95,25 +95,25 @@ class SpinsLinear(nn.Linear):
 
 
 class SpinsConv6(nn.Module):
-    def __init__(self, locked_rate: float):
+    def __init__(self, localPinRate: float):
         super().__init__()
-        self.conv1 = SpinsConv(3, 64, 3, stride=1, padding=1, bias=False, locked_rate=locked_rate)
+        self.conv1 = SpinsConvLayer(3, 64, 3, stride=1, padding=1, bias=False, localPinRate=localPinRate)
         self.bn1 = nn.BatchNorm2d(64, affine=False)
-        self.conv2 = SpinsConv(64, 64, 3, stride=1, padding=1, bias=False, locked_rate=locked_rate)
+        self.conv2 = SpinsConvLayer(64, 64, 3, stride=1, padding=1, bias=False, localPinRate=localPinRate)
         self.bn2 = nn.BatchNorm2d(64, affine=False)
-        self.conv3 = SpinsConv(64, 128, 3, stride=1, padding=1, bias=False, locked_rate=locked_rate)
+        self.conv3 = SpinsConvLayer(64, 128, 3, stride=1, padding=1, bias=False, localPinRate=localPinRate)
         self.bn3 = nn.BatchNorm2d(128, affine=False)
-        self.conv4 = SpinsConv(128, 128, 3, stride=1, padding=1, bias=False, locked_rate=locked_rate)
+        self.conv4 = SpinsConvLayer(128, 128, 3, stride=1, padding=1, bias=False, localPinRate=localPinRate)
         self.bn4 = nn.BatchNorm2d(128, affine=False)
-        self.conv5 = SpinsConv(128, 256, 3, stride=1, padding=1, bias=False, locked_rate=locked_rate)
+        self.conv5 = SpinsConvLayer(128, 256, 3, stride=1, padding=1, bias=False, localPinRate=localPinRate)
         self.bn5 = nn.BatchNorm2d(256, affine=False)
-        self.conv6 = SpinsConv(256, 256, 3, stride=1, padding=1, bias=False, locked_rate=locked_rate)
+        self.conv6 = SpinsConvLayer(256, 256, 3, stride=1, padding=1, bias=False, localPinRate=localPinRate)
         self.bn6 = nn.BatchNorm2d(256, affine=False)
-        self.fc1 = SpinsLinear(4*4*256, 256, bias=False, locked_rate=locked_rate)
+        self.fc1 = SpinsLinearLayer(4*4*256, 256, bias=False, localPinRate=localPinRate)
         self.bn7 = nn.BatchNorm1d(num_features=256, affine=False)
-        self.fc2 = SpinsLinear(256, 256, bias=False, locked_rate=locked_rate)
+        self.fc2 = SpinsLinearLayer(256, 256, bias=False, localPinRate=localPinRate)
         self.bn8 = nn.BatchNorm1d(num_features=256, affine=False)
-        self.fc3 = SpinsLinear(256, 10, bias=False, locked_rate=locked_rate)
+        self.fc3 = SpinsLinearLayer(256, 10, bias=False, localPinRate=localPinRate)
 
     def forward(self, x):
         x = F.relu(self.bn1(self.conv1(x)))
