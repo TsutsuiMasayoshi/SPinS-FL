@@ -1,1 +1,1 @@
-from spinsclient import SpinsClient
+from clients.spinsclient import SpinsClient

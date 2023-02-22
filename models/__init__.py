@@ -1,3 +1,3 @@
-from spins import SpinsConv6
-from scorebased import SupermaskConv6
-from weightbased import Conv6
+from models.spins import SpinsConv6
+from models.scorebased import SupermaskConv6
+from models.weightbased import Conv6
