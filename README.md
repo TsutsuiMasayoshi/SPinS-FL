@@ -62,6 +62,7 @@ pip install requirements.txt
 ```
 $ ./runfl.sh
 ```
+The accuracy is recorded in server.log for every round.
 
 # Author
 
@@ -70,4 +71,4 @@ The University of Tokyo
 
 # License
 
-TODO
+Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
