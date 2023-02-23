@@ -48,23 +48,23 @@ class SpinsClient(fl.client.NumPyClient):
 
             dead_indices = np.concatenate([self.top_untracked_indices_list[layer_idx], self.bottom_untracked_indices_list[layer_idx]], 0)
 
-            all_indices = np.arange(len(v_flatten)) #score全体のindex配列
+            all_indices = np.arange(len(v_flatten))
             live_mask = np.ones(all_indices.size, dtype=bool)
             live_mask[dead_indices] = False
-            live_indices = all_indices[live_mask] #追跡中のindexだけからなる配列
-            v_alive_flatten = v_flatten[live_mask] #現在追跡中のスコアのみからなる配列
+            live_indices = all_indices[live_mask]
+            v_alive_flatten = v_flatten[live_mask]
             abs_lives_ranking = np.argsort(np.abs(v_alive_flatten))
-            sorted_live_indices = live_indices[abs_lives_ranking] #追跡中のスコアのindexを、ランキング順に並べ替えたもの
+            sorted_live_indices = live_indices[abs_lives_ranking] # sorted by their score ranks
 
-            if live_indices.size // 2 - int((self.args.globalPinRate / 2) * v.size) > v.size // 2 - int((self.args.localPinRate / 2) * v.size): #通常通りkillした時に、local unlock sectionまで侵さないようにする
+            if live_indices.size // 2 - int((self.args.globalPinRate / 2) * v.size) > v.size // 2 - int((self.args.localPinRate / 2) * v.size): # do not invade scores not localPinned yet.
                 bottomkilling_end = int((self.args.globalPinRate / 2) * v.size)
-                topkilling_start = sorted_live_indices.size - bottomkilling_end #必ず上下同数ずつkillされる
+                topkilling_start = sorted_live_indices.size - bottomkilling_end # the same number of scores are killed from top and bottom
             else:
-                bottomkilling_end = sorted_live_indices.size // 2 - int(((1.0 - self.args.localPinRate) / 2) * v.size) #local unlock sectionぎりぎりまで
-                topkilling_start = sorted_live_indices.size - bottomkilling_end #必ず上下同数ずつkillされる
+                bottomkilling_end = sorted_live_indices.size // 2 - int(((1.0 - self.args.localPinRate) / 2) * v.size) # do not invade scores not localPinned yet.
+                topkilling_start = sorted_live_indices.size - bottomkilling_end
 
-            bottom_killed_indices = sorted_live_indices[:bottomkilling_end] #下位
-            top_killed_indices = sorted_live_indices[topkilling_start:] #追跡をやめるスコア上位
+            bottom_killed_indices = sorted_live_indices[:bottomkilling_end]
+            top_killed_indices = sorted_live_indices[topkilling_start:]
 
             new_bottom_untracked = np.concatenate([self.bottom_untracked_indices_list[layer_idx], bottom_killed_indices], 0)
             new_top_untracked = np.concatenate([self.top_untracked_indices_list[layer_idx], top_killed_indices], 0)
@@ -80,23 +80,23 @@ class SpinsClient(fl.client.NumPyClient):
         bottom_indices_list = []
 
         layer_idx = 0
-        for scoreidx in self.score_without_bn_idx: #locking local score
+        for scoreidx in self.score_without_bn_idx: # pinning local score
             v = score_bn_list[scoreidx]
 
-            ###global lock support
+            ### global pinning support
             living_mask = np.ones(v.size, dtype=bool)
-            all_indices = np.arange(v.size) #score全体のindex配列
+            all_indices = np.arange(v.size)
 
             living_mask[self.top_untracked_indices_list[layer_idx]] = False
             living_mask[self.bottom_untracked_indices_list[layer_idx]] = False
 
             living_v_flatten = v.flatten()[living_mask]
-            live_indices = all_indices[living_mask] #追跡中のindexだけからなる配列
+            live_indices = all_indices[living_mask]
                 
             abs_livingscores_ranking = np.argsort(np.abs(living_v_flatten))
-            sorted_live_indices = live_indices[abs_livingscores_ranking] #追跡中のスコアの大元のindexを、ランキング順に並べ替えたもの
+            sorted_live_indices = live_indices[abs_livingscores_ranking] # sorted by their score ranks
 
-            bottom_locked_end = living_v_flatten.size // 2 - int((1.0 - self.args.localPinRate) * v.size) // 2 #追跡中の個数から、unlockすべき個数を引けば、ロックする個数
+            bottom_locked_end = living_v_flatten.size // 2 - int((1.0 - self.args.localPinRate) * v.size) // 2 # the number of scores to pin
             top_locked_start = living_v_flatten.size - bottom_locked_end
 
             bottom_locked_indices = np.concatenate([self.bottom_untracked_indices_list[layer_idx], sorted_live_indices[:bottom_locked_end]], 0)
