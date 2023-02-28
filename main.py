@@ -28,7 +28,7 @@ def main(args):
     elif args.algorithm == SCORE_BASED:
         model = SupermaskConv6().to(device)
     elif args.algorithm == WEIGHT_BASED:
-        raise NotImplementedError("weight based algorithm will become available soon...")
+        raise Conv6().to(device)
     else:
         raise ValueError("Choose algorithm from [0: SPinS, 1: Score based, 2: Weight based]")
 
