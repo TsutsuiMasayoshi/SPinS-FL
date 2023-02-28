@@ -15,7 +15,7 @@ WEIGHT_BASED = 2
 
 
 def main(args):
-    torch.cuda.set_device(args.client_id % 4)
+    torch.cuda.set_device(args.client_id % torch.cuda.device_count())
     torch.manual_seed(args.seed)
     random.seed(args.seed)
     np.random.seed(args.seed)
