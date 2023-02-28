@@ -26,7 +26,7 @@ def main(args):
     if args.algorithm == SPINS:
         model = SpinsConv6(args.localPinRate).to(device)
     elif args.algorithm == SCORE_BASED:
-        raise NotImplementedError("score based algorithm will become available soon...")
+        model = SupermaskConv6().to(device)
     elif args.algorithm == WEIGHT_BASED:
         raise NotImplementedError("weight based algorithm will become available soon...")
     else:
