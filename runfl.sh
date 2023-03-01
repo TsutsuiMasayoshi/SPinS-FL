@@ -1,4 +1,4 @@
-algo=2
+algo=0
 
 python server.py > server.log &
 sleep 2
