@@ -7,7 +7,7 @@ import torch.nn as nn
 import flwr as fl
 from models import *
 from data import data_loaders
-from clients import SpinsClient, ScoreBasedClient
+from clients import SpinsClient, ScoreBasedClient, WeightBasedClient
 
 SPINS = 0
 SCORE_BASED = 1
@@ -44,7 +44,7 @@ def main(args):
     elif args.algorithm == SCORE_BASED:
         client = ScoreBasedClient(*client_args)
     elif args.algorithm == WEIGHT_BASED:
-        raise NotImplementedError("weight based algorithm will become available soon...")
+        client = WeightBasedClient(*client_args)
     else:
         raise ValueError("Choose algorithm from [0: SPinS, 1: Score based, 2: Weight based]")
 

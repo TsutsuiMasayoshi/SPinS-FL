@@ -1,2 +1,3 @@
 from clients.spinsClient import SpinsClient
 from clients.scoreBasedClient import ScoreBasedClient
+from clients.weightBasedClient import WeightBasedClient
