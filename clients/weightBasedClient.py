@@ -22,7 +22,7 @@ class WeightBasedClient(fl.client.NumPyClient):
         self.args = args
         self.round_ctr = 0
 
-    def get_parameters(self):
+    def get_parameters(self, config):
         scorelist = []
         for name, val in self.model.state_dict().items():
             if 'weight' in name or ('bn' in name and 'running' in name):
