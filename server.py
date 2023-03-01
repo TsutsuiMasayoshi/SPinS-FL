@@ -19,7 +19,7 @@ class AggregateCustomMetricStrategy(fl.server.strategy.FedAvg):
 
 		# Aggregate and print custom metric
 		accuracy_aggregated = sum(accuracies) / sum(examples)
-		print(f"{accuracy_aggregated}")
+		print(accuracy_aggregated)
 
 		# Call aggregate_evaluate from base class (FedAvg)
 		return super().aggregate_evaluate(rnd, results, failures)

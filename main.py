@@ -7,7 +7,7 @@ import torch.nn as nn
 import flwr as fl
 from models import *
 from data import data_loaders
-from clients import SpinsClient
+from clients import SpinsClient, ScoreBasedClient
 
 SPINS = 0
 SCORE_BASED = 1
@@ -23,12 +23,13 @@ def main(args):
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
+    print(args.algorithm)
     if args.algorithm == SPINS:
         model = SpinsConv6(args.localPinRate).to(device)
     elif args.algorithm == SCORE_BASED:
         model = SupermaskConv6().to(device)
     elif args.algorithm == WEIGHT_BASED:
-        raise Conv6().to(device)
+        model = Conv6().to(device)
     else:
         raise ValueError("Choose algorithm from [0: SPinS, 1: Score based, 2: Weight based]")
 
@@ -41,7 +42,7 @@ def main(args):
     if args.algorithm == SPINS:
         client = SpinsClient(*client_args)
     elif args.algorithm == SCORE_BASED:
-        raise NotImplementedError("score based algorithm will become available soon...")
+        client = ScoreBasedClient(*client_args)
     elif args.algorithm == WEIGHT_BASED:
         raise NotImplementedError("weight based algorithm will become available soon...")
     else:
