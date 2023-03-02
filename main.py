@@ -76,8 +76,6 @@ if __name__ == '__main__':
                             help='whether you load checkpoint')
     parser.add_argument('--no-cuda', action='store_true', default=False,
                             help='disables CUDA training')
-    parser.add_argument('--save-model', action='store_true', default=False,
-                            help='For Saving the current Model')
     parser.add_argument('--data', type=str, default='./data', help='Location to store data')
 
     args = parser.parse_args()
