@@ -62,6 +62,7 @@ pip install requirements.txt
 ```
 $ # at the top directory
 $ mkdir data
+$ mkdir commLog
 $ ./runfl.sh
 ```
 The accuracy is recorded in server.log for every round.
