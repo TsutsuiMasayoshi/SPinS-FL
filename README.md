@@ -60,6 +60,8 @@ pip install requirements.txt
 
 # Usage
 ```
+$ # at the top directory
+$ mkdir data
 $ ./runfl.sh
 ```
 The accuracy is recorded in server.log for every round.
