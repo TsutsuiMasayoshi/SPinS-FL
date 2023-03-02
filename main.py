@@ -8,6 +8,7 @@ import flwr as fl
 from models import *
 from data import data_loaders
 from clients import SpinsClient, ScoreBasedClient, WeightBasedClient
+from trafficTracker import TrafficTracker
 
 SPINS = 0
 SCORE_BASED = 1
@@ -35,8 +36,10 @@ def main(args):
     optimizer = optim.Adam([p for p in model.parameters() if p.requires_grad])
     criterion = nn.CrossEntropyLoss()
     train_loaders, test_loader = data_loaders(args.client_id, args.data, args.is_iid, use_cuda, args.batch_size, args.test_batch_size)
+    trafficTracker = TrafficTracker()
 
-    client_args = [model, optimizer, criterion, device, train_loaders, test_loader, args]
+
+    client_args = [model, optimizer, criterion, device, train_loaders, test_loader, trafficTracker, args]
 
     if args.algorithm == SPINS:
         client = SpinsClient(*client_args)
@@ -49,6 +52,8 @@ def main(args):
 
     # Start client
     fl.client.start_numpy_client(server_address="0.0.0.0:8080", client=client)
+    if args.client_id == 0:
+        trafficTracker.plot() # create graph of communication vs rounds
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ from collections import OrderedDict
 import flwr as fl
 
 class WeightBasedClient(fl.client.NumPyClient):
-    def __init__(self, model, optimizer, criterion, device, train_loaders, test_loader, args) -> None:
+    def __init__(self, model, optimizer, criterion, device, train_loaders, test_loader, trafficTracker, args) -> None:
         torch.backends.cudnn.benchmark  = True
         super().__init__()
         self.model = model
@@ -21,20 +21,25 @@ class WeightBasedClient(fl.client.NumPyClient):
         self.test_loader = test_loader
         self.args = args
         self.round_ctr = 0
+        self.trafficTracker = trafficTracker
 
-    def get_parameters(self, config):
-        scorelist = []
+    def get_parameters(self, config): # send params to server
+        layersToComm = []
         for name, val in self.model.state_dict().items():
             if 'weight' in name or ('bn' in name and 'running' in name):
-                scorelist.append(val.cpu().numpy())
-        return scorelist
+                layersToComm.append(val.cpu().numpy()) # communicate only weights
+        if self.args.client_id == 0: # one communication recorder is enough
+            self.trafficTracker.send(sum([len(l) for l in layersToComm]))
+        return layersToComm
 
-    def set_parameters(self, scorelist):
+    def set_parameters(self, layersToComm): # load params from server
+        if self.args.client_id == 0: # one communication recorder is enough
+            self.trafficTracker.load(sum([len(l) for l in layersToComm]))
         parameters = []
         i = 0
         for name, val in self.model.state_dict().items():
             if 'weight' in name or ('bn' in name and 'running' in name):
-                parameters.append(scorelist[i])
+                parameters.append(layersToComm[i])
                 i += 1
             else:
                 parameters.append(val)

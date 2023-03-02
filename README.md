@@ -65,6 +65,7 @@ $ mkdir data
 $ ./runfl.sh
 ```
 The accuracy is recorded in server.log for every round.
+The graph of Communication vs Rounds is created in commLog/FLCommunication.png after execution.
 
 # Author
 
