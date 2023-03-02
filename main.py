@@ -23,7 +23,6 @@ def main(args):
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    print(args.algorithm)
     if args.algorithm == SPINS:
         model = SpinsConv6(args.localPinRate).to(device)
     elif args.algorithm == SCORE_BASED:
