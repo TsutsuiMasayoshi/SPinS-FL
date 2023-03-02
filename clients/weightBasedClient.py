@@ -19,9 +19,9 @@ class WeightBasedClient(fl.client.NumPyClient):
         self.device = device
         self.train_loaders = train_loaders
         self.test_loader = test_loader
+        self.trafficTracker = trafficTracker
         self.args = args
         self.round_ctr = 0
-        self.trafficTracker = trafficTracker
 
     def get_parameters(self, config): # send params to server
         layersToComm = []

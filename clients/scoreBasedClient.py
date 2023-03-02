@@ -10,7 +10,7 @@ from collections import OrderedDict
 import flwr as fl
 
 class ScoreBasedClient(fl.client.NumPyClient):
-    def __init__(self, model, optimizer, criterion, device, train_loaders, test_loader, args) -> None:
+    def __init__(self, model, optimizer, criterion, device, train_loaders, test_loader, trafficTracker, args) -> None:
         torch.backends.cudnn.benchmark  = True
         super().__init__()
         self.model = model
@@ -19,26 +19,28 @@ class ScoreBasedClient(fl.client.NumPyClient):
         self.device = device
         self.train_loaders = train_loaders
         self.test_loader = test_loader
+        self.trafficTracker = trafficTracker
         self.args = args
         self.round_ctr = 0
-        self.score_without_bn_idx = []
-        self.top_untracked_indices_list = [np.array([],dtype=int) for _ in range(6+3)] # indices of top half untracked scores per layer
-        self.bottom_untracked_indices_list = [np.array([],dtype=int) for _ in range(6+3)] # bottom half
 
     def get_parameters(self, config):
-        scorelist = []
+        layersToComm = []
         for name, val in self.model.state_dict().items():
             if 'scores' in name or ('bn' in name and 'running' in name):
-                scorelist.append(val.cpu().numpy())
-        return scorelist
+                layersToComm.append(val.cpu().numpy())
+        if self.args.client_id == 0: # one communication recorder is enough
+            self.trafficTracker.send(sum([len(l) for l in layersToComm]))
+        return layersToComm
 
-    def set_parameters(self, scorelist):
+    def set_parameters(self, layersToComm):
+        if self.args.client_id == 0: # one communication recorder is enough
+            self.trafficTracker.load(sum([len(l) for l in layersToComm]))
         parameters = []
         i = 0
         # replace only score vals with those averaged by server
         for name, val in self.model.state_dict().items():
             if 'scores' in name or ('bn' in name and 'running' in name):
-                parameters.append(scorelist[i])
+                parameters.append(layersToComm[i])
                 i += 1
             else:
                 parameters.append(val)
