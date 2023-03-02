@@ -9,8 +9,15 @@ import torch
 from collections import OrderedDict
 import flwr as fl
 
+DEBUG = 1
+
+def dbg_print(s):
+    if DEBUG:
+        print(s)
+
+
 class SpinsClient(fl.client.NumPyClient):
-    def __init__(self, model, optimizer, criterion, device, train_loaders, test_loader, args) -> None:
+    def __init__(self, model, optimizer, criterion, device, train_loaders, test_loader, trafficTracker, args) -> None:
         torch.backends.cudnn.benchmark  = True
         super().__init__()
         self.model = model
@@ -19,13 +26,14 @@ class SpinsClient(fl.client.NumPyClient):
         self.device = device
         self.train_loaders = train_loaders
         self.test_loader = test_loader
+        self.trafficTracker = trafficTracker
         self.args = args
         self.round_ctr = 0
         self.score_without_bn_idx = []
         self.top_untracked_indices_list = [np.array([],dtype=int) for _ in range(6+3)] # indices of top half untracked scores per layer
         self.bottom_untracked_indices_list = [np.array([],dtype=int) for _ in range(6+3)] # bottom half
 
-        idx = 0
+        idx = 0 # remember which is score. Useful in global Pinning
         for name in self.model.state_dict().keys():
             if 'scores' in name or ('bn' in name and 'running' in name):
                 if 'scores' in name:
@@ -33,17 +41,21 @@ class SpinsClient(fl.client.NumPyClient):
                 idx += 1
 
     def get_parameters(self, config):
-        score_bn_list = []
+        layersToComm = []
         for name, val in self.model.state_dict().items():
             if 'scores' in name or ('bn' in name and 'running' in name):
-                score_bn_list.append(val.cpu().numpy())
-        return score_bn_list
+                layersToComm.append(val.cpu().numpy())
+        if self.args.client_id == 0: # one communication recorder is enough
+            self.trafficTracker.send(sum([l.size for l in layersToComm])
+                                    - sum([l.size for l in self.top_untracked_indices_list])
+                                    - sum([l.size for l in self.bottom_untracked_indices_list]))
+            # do not count global pinned scores for communication
+        return layersToComm
         
-    def globalPinning(self, score_bn_list):
-
+    def globalPinning(self, layersToComm):
         layer_idx = 0
         for scoreidx in self.score_without_bn_idx: #killing global score
-            v = score_bn_list[scoreidx]
+            v = layersToComm[scoreidx]
             v_flatten = v.flatten()
 
             dead_indices = np.concatenate([self.top_untracked_indices_list[layer_idx], self.bottom_untracked_indices_list[layer_idx]], 0)
@@ -74,14 +86,13 @@ class SpinsClient(fl.client.NumPyClient):
             layer_idx += 1
 
 
-    def set_parameters(self, score_bn_list):
+    def set_parameters(self, layersToComm):
         top_indices_list = []
         unlocked_indices_list = []
         bottom_indices_list = []
-
         layer_idx = 0
         for scoreidx in self.score_without_bn_idx: # pinning local score
-            v = score_bn_list[scoreidx]
+            v = layersToComm[scoreidx]
 
             ### global pinning support
             living_mask = np.ones(v.size, dtype=bool)
@@ -108,6 +119,12 @@ class SpinsClient(fl.client.NumPyClient):
             bottom_indices_list.append(bottom_locked_indices)
             layer_idx += 1
 
+        if self.args.client_id == 0: # one communication recorder is enough
+            print(len(layersToComm[0]))
+            print(len(top_indices_list[0]))
+            self.trafficTracker.load(sum([l.size for l in layersToComm])
+                                    - sum([l.size for l in top_indices_list])
+                                    - sum([l.size for l in bottom_indices_list]))
         parameters = []
         i = 0
         top_itr = 0
@@ -116,7 +133,7 @@ class SpinsClient(fl.client.NumPyClient):
 
         for name, val in self.model.state_dict().items():
             if 'scores' in name or ('bn' in name and 'running' in name):
-                parameters.append(score_bn_list[i])
+                parameters.append(layersToComm[i])
                 i += 1
             elif 'top_locked' in name:
                 parameters.append(top_indices_list[top_itr])

@@ -29,12 +29,12 @@ class ScoreBasedClient(fl.client.NumPyClient):
             if 'scores' in name or ('bn' in name and 'running' in name):
                 layersToComm.append(val.cpu().numpy())
         if self.args.client_id == 0: # one communication recorder is enough
-            self.trafficTracker.send(sum([len(l) for l in layersToComm]))
+            self.trafficTracker.send(sum([l.size for l in layersToComm]))
         return layersToComm
 
     def set_parameters(self, layersToComm):
         if self.args.client_id == 0: # one communication recorder is enough
-            self.trafficTracker.load(sum([len(l) for l in layersToComm]))
+            self.trafficTracker.load(sum([l.size for l in layersToComm]))
         parameters = []
         i = 0
         # replace only score vals with those averaged by server

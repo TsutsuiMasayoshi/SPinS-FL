@@ -16,6 +16,8 @@ class TrafficTracker: # number is Byte
         rounds = list(range(len(self.sentCom_round)))
         comm_per_round = [(self.sentCom_round[i] + self.loadedCom_round[i]) / 1000
                             for i in range(len(self.sentCom_round))]
+        print(self.sentCom_round)
+        print(self.loadedCom_round)
         plt.plot(rounds, comm_per_round)
         plt.title('Communication vs Rounds')
         plt.xlabel('Rounds')

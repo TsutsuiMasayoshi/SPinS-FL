@@ -27,14 +27,14 @@ class WeightBasedClient(fl.client.NumPyClient):
         layersToComm = []
         for name, val in self.model.state_dict().items():
             if 'weight' in name or ('bn' in name and 'running' in name):
-                layersToComm.append(val.cpu().numpy()) # communicate only weights
+                layersToComm.append(val.cpu().numpy()) # communicate only weights and batchnorm
         if self.args.client_id == 0: # one communication recorder is enough
-            self.trafficTracker.send(sum([len(l) for l in layersToComm]))
+            self.trafficTracker.send(sum([l.size for l in layersToComm]))
         return layersToComm
 
     def set_parameters(self, layersToComm): # load params from server
         if self.args.client_id == 0: # one communication recorder is enough
-            self.trafficTracker.load(sum([len(l) for l in layersToComm]))
+            self.trafficTracker.load(sum([l.size for l in layersToComm]))
         parameters = []
         i = 0
         for name, val in self.model.state_dict().items():
