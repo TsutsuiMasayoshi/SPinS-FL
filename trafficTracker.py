@@ -14,10 +14,10 @@ class TrafficTracker: # number is Byte
 
     def plot(self):
         rounds = list(range(len(self.sentCom_round)))
-        comm_per_round = [self.sentCom_round[i] + self.loadedCom_round[i]
+        comm_per_round = [(self.sentCom_round[i] + self.loadedCom_round[i]) / 1000
                             for i in range(len(self.sentCom_round))]
         plt.plot(rounds, comm_per_round)
         plt.title('Communication vs Rounds')
         plt.xlabel('Rounds')
-        plt.ylabel('Communication')
+        plt.ylabel('Communication [KBytes]')
         plt.savefig('commLog/FLCommunication.png')
