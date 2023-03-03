@@ -9,13 +9,6 @@ import torch
 from collections import OrderedDict
 import flwr as fl
 
-DEBUG = 1
-
-def dbg_print(s):
-    if DEBUG:
-        print(s)
-
-
 class SpinsClient(fl.client.NumPyClient):
     def __init__(self, model, optimizer, criterion, device, train_loaders, test_loader, trafficTracker, args) -> None:
         torch.backends.cudnn.benchmark  = True
