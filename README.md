@@ -10,7 +10,7 @@ Accpeted as a conference paper in [IEEE Consumer Communications & Networking Con
 <img src="https://user-images.githubusercontent.com/62000880/219865620-4dd3c489-b820-429c-a621-0f4883c81e47.png" width=400>
 
 
-Federated learning (FL) is a distributed machine learning method in which edge devices collaboratively train a common model without disclosing their private training data. 
+Federated learning (FL) is a distributed machine learning method in which edge devices collaboratively train a common ML model without disclosing their private training data. 
 
 Unlike data centers, edge devices often stand in low-bandwidth traffic environments, which can be a bottleneck in the training process.
 
