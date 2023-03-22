@@ -17,7 +17,7 @@ Unlike data centers, edge devices often stand in low-bandwidth traffic environme
 To solve this problem, we utilized the Edge-Popup Algorithm: a deep learning algorithm based on the Lottery Ticket Hypothesis.
 
 # The Lottery Ticket Hypothesis
-Pruning weights from neural networks have shown some success in the past; the required weight is only a part of the whole in a large neural network.
+Pruning weights from neural networks have shown a lot of success in the past; the required weight is only a part of the whole in a large neural network.
 
 Based on this idea, Frankle and Carbin proposed the lottery ticket hypothesis, 
 wherein a randomly weighted neural network contains a subnetwork whose test accuracy is comparable to that of the entire network
